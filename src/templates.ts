@@ -97,7 +97,7 @@ const exa = new Exa(process.env.EXA_API_KEY);
 const { results } = await ${SEARCH_CALL};
 
 for (const r of results) {
-  console.log(\`\\n\${r.title}\\n\${r.url}\`);
+  console.log(\`\\n\${r.title || "(untitled)"}\\n\${r.url}\`);
   for (const h of r.highlights ?? []) console.log(\`  · \${h}\`);
 }
 `;

@@ -3,17 +3,20 @@
 From an Exa API key to a working search call **inside your own project**, in one command. Built for developers and for the coding agents working alongside them.
 
 ```bash
-npx exa-quickstart
+npx exa-quickstart          # once published to npm
+npx github:Duke242/exa-quickstart   # straight from GitHub
 ```
+
+Real output on a fresh `create-next-app` project:
 
 ```
 ✔ detect     next-app, TypeScript, npm
 ✔ key        Found 3f2a…9c1d in .env.local
-✔ validate   Key works (412 ms): "Exa API Documentation"
+✔ validate   Key works (298 ms): https://exa.ai/docs/reference/search
 ✔ install    Installed exa-js with npm
 ✔ write      Wrote app/api/exa-search/route.ts, scripts/exa-check.mjs
-✔ agents     Updated AGENTS.md and CLAUDE.md
-✔ gitignore  Added .env files to .gitignore
+✔ agents     Updated AGENTS.md
+– gitignore  .env files are already ignored
 ✔ first_call First call from your project succeeded: {"ok":true,...}
 
 Next:
@@ -39,6 +42,10 @@ Coding agents run commands, so the CLI is non-interactive and machine-readable:
 - Exit codes are meaningful: `0` done, `1` something failed, `2` a human has to act (missing or invalid key).
 - Every run is idempotent, so an agent can safely retry.
 
+## Verified end to end
+
+Before release it was run against Exa's live API on a fresh `create-next-app` (Next.js 15, App Router, TypeScript), an Express app (CommonJS) and a plain Node project. In each one it installed the SDK, wrote the integration and made a real call from inside the project; the generated Next.js route passes the project's own `tsc` check and returns live results from a running dev server.
+
 ## Options
 
 | Flag | Effect |
@@ -53,7 +60,7 @@ Coding agents run commands, so the CLI is non-interactive and machine-readable:
 
 ```bash
 npm install
-npm test        # TypeScript build + 27 tests with Node's built-in runner
+npm test        # TypeScript build + 29 tests with Node's built-in runner
 ```
 
 Tests run against throwaway sample projects, with the network and package manager replaced by fakes, so they are fast and need no API key. The generated JavaScript is also syntax-checked for every framework.

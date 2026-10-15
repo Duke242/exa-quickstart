@@ -39,6 +39,21 @@ export interface Deps {
   env: NodeJS.ProcessEnv;
 }
 
+/** Turns a package manager failure into one sentence and a command the developer can run. */
+export function explainInstallFailure(output: string, project: ProjectInfo): { detail: string; fix?: string } {
+  if (/ERESOLVE/.test(output)) {
+    const fix = project.packageManager === "npm" ? "npm install exa-js --legacy-peer-deps" : undefined;
+    return {
+      detail: "Your project already has peer dependency conflicts, so npm refused to add any package. exa-js itself is not the cause.",
+      fix: fix ?? `${installCommand(project.packageManager).flat().join(" ")} (after resolving the existing peer dependency conflicts)`,
+    };
+  }
+  if (/E(ACCES|PERM)/.test(output)) return { detail: "The package manager hit a file permission error in this project.", fix: "Fix the folder's permissions, then run again." };
+  if (/ENOTFOUND|ETIMEDOUT|EAI_AGAIN/.test(output)) return { detail: "The package manager could not reach the registry.", fix: "Check your connection or registry settings, then run again." };
+  const meaningful = output.split("\n").filter((l) => l.trim() && !/full report|complete log|^npm error\s*$/i.test(l));
+  return { detail: meaningful.slice(0, 4).join("\n") || "Installing exa-js failed." };
+}
+
 export const realDeps: Deps = {
   validate: (key) => validateKey(key),
   install(dir, project) {
@@ -96,7 +111,7 @@ export async function run(opts: Options, deps: Deps = realDeps): Promise<Report>
     next.push(check.fix);
     return done(check.problem === "invalid_key" || check.problem === "out_of_credits" ? 2 : 1, project);
   }
-  steps.push({ name: "validate", status: "ok", detail: `Key works (${check.latencyMs} ms)${check.sampleTitle ? `: "${check.sampleTitle}"` : ""}` });
+  steps.push({ name: "validate", status: "ok", detail: `Key works (${check.latencyMs} ms)${check.sampleTitle ? `: "${check.sampleTitle}"` : check.sampleUrl ? `: ${check.sampleUrl}` : ""}` });
 
   // 4. Install the SDK with the project's own package manager.
   if (project.hasExaSdk) {
@@ -106,8 +121,14 @@ export async function run(opts: Options, deps: Deps = realDeps): Promise<Report>
     next.push(installCommand(project.packageManager).flat().join(" "));
   } else {
     const r = deps.install(opts.dir, project);
-    steps.push({ name: "install", status: r.ok ? "ok" : "failed", detail: r.ok ? `Installed exa-js with ${project.packageManager}` : r.output.split("\n").slice(-5).join("\n") });
-    if (!r.ok) return done(1, project);
+    if (r.ok) {
+      steps.push({ name: "install", status: "ok", detail: `Installed exa-js with ${project.packageManager}` });
+    } else {
+      const why = explainInstallFailure(r.output, project);
+      steps.push({ name: "install", status: "failed", detail: why.detail });
+      if (why.fix) next.push(why.fix, "Run exa-quickstart again (it skips the install once exa-js is present)");
+      return done(1, project);
+    }
   }
 
   // 5. Write the integration and the check script, never clobbering the developer's code.

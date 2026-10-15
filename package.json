@@ -3,17 +3,36 @@
   "version": "0.1.0",
   "description": "From Exa API key to a working search call in your project, in one command. Built for developers and their coding agents.",
   "type": "module",
-  "bin": { "exa-quickstart": "dist/cli.js" },
-  "files": ["dist", "!dist/__tests__"],
-  "engines": { "node": ">=20" },
+  "bin": {
+    "exa-quickstart": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "!dist/__tests__"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc",
     "test": "tsc && node --test \"dist/__tests__/*.test.js\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepare": "tsc"
   },
-  "keywords": ["exa", "search", "ai-agents", "onboarding", "cli"],
+  "keywords": [
+    "exa",
+    "search",
+    "ai-agents",
+    "onboarding",
+    "cli"
+  ],
   "author": "Mohamad Aboukhodr",
   "license": "MIT",
-  "dependencies": { "exa-js": "2.25.0" },
-  "devDependencies": { "@types/node": "22.10.2", "typescript": "5.7.2" }
+  "dependencies": {
+    "exa-js": "2.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "typescript": "5.7.2"
+  }
 }

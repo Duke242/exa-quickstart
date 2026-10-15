@@ -97,4 +97,19 @@ describe("run", () => {
     assert.equal(report.exitCode, 1);
     assert.match(report.steps.at(-1)!.detail, /boom/);
   });
+
+  it("explains npm peer-dependency conflicts instead of dumping the log tail", async () => {
+    const eresolve = "npm error code ERESOLVE\nnpm error ERESOLVE unable to resolve dependency tree\nnpm error\nnpm error For a full report see:\nnpm error /x/eresolve-report.txt";
+    const report = await run(opts(nextProject()), fakeDeps({ install: () => ({ ok: false, output: eresolve }) }));
+    const install = report.steps.find((s) => s.name === "install")!;
+    assert.equal(report.exitCode, 1);
+    assert.match(install.detail, /peer dependency/i);
+    assert.match(report.next.join(" "), /npm install exa-js --legacy-peer-deps/);
+  });
+
+  it("shows the URL when the sample result has no title", async () => {
+    const deps = fakeDeps({ validate: async () => ({ ok: true, latencyMs: 9, sampleTitle: "", sampleUrl: "https://exa.ai/docs" }) });
+    const report = await run(opts(nextProject()), deps);
+    assert.match(report.steps.find((s) => s.name === "validate")!.detail, /https:\/\/exa\.ai\/docs/);
+  });
 });
