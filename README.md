@@ -1,10 +1,11 @@
 # exa-quickstart
 
+[![npm](https://img.shields.io/npm/v/exa-quickstart.svg)](https://www.npmjs.com/package/exa-quickstart) [![CI](https://github.com/Duke242/exa-quickstart/actions/workflows/ci.yml/badge.svg)](https://github.com/Duke242/exa-quickstart/actions/workflows/ci.yml)
+
 From an Exa API key to a working search call **inside your own project**, in one command. Built for developers and for the coding agents working alongside them.
 
 ```bash
-npx exa-quickstart          # once published to npm
-npx github:Duke242/exa-quickstart   # straight from GitHub
+npx exa-quickstart
 ```
 
 Real output on a fresh `create-next-app` project:
