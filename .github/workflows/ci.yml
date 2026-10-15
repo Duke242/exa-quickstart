@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: CLI stops safely without a key
+        run: |
+          mkdir -p /tmp/demo/app && echo '{"name":"demo","dependencies":{"next":"15.0.0"}}' > /tmp/demo/package.json
+          set +e; node dist/cli.js --dir /tmp/demo --json > out.json; code=$?; set -e
+          cat out.json
+          [ "$code" = "2" ] || { echo "expected exit code 2, got $code"; exit 1; }
